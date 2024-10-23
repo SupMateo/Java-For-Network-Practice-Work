@@ -1,20 +1,15 @@
 import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.net.SocketException;
+import java.net.*;
 
 public class UDPServer {
-    private int port;
+    private final int port;
     private DatagramSocket socket;
     private final int bufferSize = 1024;
 
     public boolean state = false;
 
-
-
     public UDPServer(){
-        this.port = 8080;
+        this.port = 4444;
     }
 
     public UDPServer(int port) {
@@ -22,32 +17,30 @@ public class UDPServer {
     }
 
     public static void main(String[] args) throws SocketException {
+        UDPServer server;
         if (args.length == 0) {
-            UDPServer server = new UDPServer();
-            server.launch();
-            while(true){
-                DatagramPacket packet = server.readDatagram();
-                server.displayPacket(packet);
-            }
+            server = new UDPServer();
         }else{
-            UDPServer server = new UDPServer(Integer.parseInt(args[0]));
-            System.out.println(server);
-            server.launch();
-            System.out.println(server);
-            while(true){
-                DatagramPacket packet = server.readDatagram();
-                server.displayPacket(packet);
+            server = new UDPServer(Integer.parseInt(args[0]));
             }
+        System.out.println(server);
+        server.launch();
+        System.out.println(server);
+        while(true){
+            DatagramPacket packet = server.readDatagram();
+            server.displayPacket(packet);
         }
     }
 
     public void launch() throws SocketException {
         try{
-            socket = new DatagramSocket(this.port);
-            System.out.println("Server launched on port " + this.port);
+            socket = new DatagramSocket(this.port,InetAddress.getByName("0.0.0.0"));
+            System.out.println("Server launched on ip "+ socket.getLocalAddress().getHostAddress() + " and on port " + this.port);
             this.state = true;
         } catch (SocketException e){
             throw new SocketException(e);
+        } catch (UnknownHostException e) {
+            throw new RuntimeException(e);
         }
     }
 
