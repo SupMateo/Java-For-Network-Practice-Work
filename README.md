@@ -1,4 +1,5 @@
-# Java Server Project
+# Java For Network - Practice Work
+#### Coded by Amin Kardellas and Matéo Suprano from ENSEA / RTS 2024 - 2025
 
 ## Overview
 
