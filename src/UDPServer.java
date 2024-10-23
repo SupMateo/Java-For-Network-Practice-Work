@@ -71,7 +71,8 @@ public class UDPServer {
         if (data.length() > bufferSize){
             data = data.substring(0, bufferSize);
         }
-        System.out.println(clientAddress + ":"+ clientPort+" > " + socket.getInetAddress() + ":"+this.port +
+        System.out.println(clientAddress.getHostAddress() + ":"+ clientPort+" > " +
+                socket.getLocalAddress().getHostAddress() + ":"+this.port +
                 " / Data : " + data);
     }
 }
