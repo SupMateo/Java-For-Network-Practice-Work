@@ -62,6 +62,25 @@ The servers support:
           java UDPClient localhost 5555
           ```
 
+5. **`TCPClient` (Concrete Class)**:
+    - A client that communicates with the `TCPServer` over the TCP protocol.
+    - Key functionality:
+        - Establishes a connection to the TCP server.
+        - Sends data from the user input to the server.
+        - Displays the server's response in hexadecimal format.
+    - Methods:
+        - `start()`: Connects to the server, sends user input, and prints the server's response.
+        - `toHex()`: Converts the server's response to hexadecimal format.
+    - Usage:
+        - Run with the following command:
+          ```bash
+          java TCPClient <address> <port>
+          ```
+        - Example:
+          ```bash
+          java TCPClient localhost 5555
+          ```
+
 ## Usage
 
 ### UDP Server
@@ -91,6 +110,7 @@ To run the TCP server:
   ```bash
    java TCPServer [port]
    ```
+
 
 If no port is specified, the server defaults to port `4444`.
 The server will accept client connections, print the received data, and echo it back to the client.
