@@ -1,0 +1,16 @@
+-------------------------------------------------------------------------------
+Test set: fr.ensea.rts.kardellas.suprano.server.ConnectionThreadTest
+-------------------------------------------------------------------------------
+Tests run: 4, Failures: 1, Errors: 0, Skipped: 0, Time elapsed: 0.229 s <<< FAILURE! -- in fr.ensea.rts.kardellas.suprano.server.ConnectionThreadTest
+fr.ensea.rts.kardellas.suprano.server.ConnectionThreadTest.testConnectionThreadRunWithValidInput -- Time elapsed: 0.201 s <<< FAILURE!
+Wanted but not invoked:
+mockWriter.println("Echo: Hello Server");
+-> at java.base/java.io.PrintWriter.println(PrintWriter.java:994)
+Actually, there were zero interactions with this mock.
+
+	at java.base/java.io.PrintWriter.println(PrintWriter.java:994)
+	at fr.ensea.rts.kardellas.suprano.server.ConnectionThreadTest.testConnectionThreadRunWithValidInput(ConnectionThreadTest.java:78)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+

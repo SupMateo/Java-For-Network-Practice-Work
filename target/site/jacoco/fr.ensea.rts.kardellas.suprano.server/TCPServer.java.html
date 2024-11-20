@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TCPServer.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Archetype - Java-For-Network-Practice-Work</a> &gt; <a href="index.source.html" class="el_package">fr.ensea.rts.kardellas.suprano.server</a> &gt; <span class="el_source">TCPServer.java</span></div><h1>TCPServer.java</h1><pre class="source lang-java linenums">package fr.ensea.rts.kardellas.suprano.server;
+
+import java.io.*;
+import java.net.*;
+
+public class TCPServer extends Server {
+    private ServerSocket serverSocket;
+
+    public TCPServer() {
+<span class="nc" id="L10">        super();</span>
+<span class="nc" id="L11">    }</span>
+
+    public TCPServer(int port) {
+<span class="fc" id="L14">        super(port);</span>
+<span class="fc" id="L15">    }</span>
+
+    @Override
+    public void launch() {
+        try {
+<span class="nc" id="L20">            serverSocket = new ServerSocket(this.port);</span>
+<span class="nc" id="L21">            System.out.println(&quot;Server launched on IP &quot; + InetAddress.getLocalHost().getHostAddress() + &quot; and on port &quot; + this.port);</span>
+<span class="nc" id="L22">            this.state = true;</span>
+<span class="fc" id="L23">        } catch (IOException e) {</span>
+<span class="fc" id="L24">            throw new RuntimeException(&quot;Failed to launch server&quot;, e);</span>
+<span class="nc" id="L25">        }</span>
+<span class="nc" id="L26">    }</span>
+
+    @Override
+    public void handleConnection() {
+        try {
+<span class="fc" id="L31">            System.out.println(&quot;Waiting for a client connection...&quot;);</span>
+<span class="nc" id="L32">            Socket clientSocket = serverSocket.accept();  // This is where it blocks in real code</span>
+<span class="nc" id="L33">            System.out.println(&quot;Connection accepted from &quot; + clientSocket.getInetAddress().getHostAddress() + &quot;:&quot; + clientSocket.getPort());</span>
+
+            // Call createConnectionThread to avoid direct instantiation in the test
+<span class="nc" id="L36">            ConnectionThread connectionThread = createConnectionThread(clientSocket);</span>
+<span class="nc" id="L37">            connectionThread.start();</span>
+<span class="nc" id="L38">        } catch (IOException e) {</span>
+<span class="nc bnc" id="L39" title="All 2 branches missed.">            if (!serverSocket.isClosed()) {</span>
+<span class="nc" id="L40">                throw new RuntimeException(&quot;Error handling client connection&quot;, e);</span>
+            }
+<span class="nc" id="L42">        }</span>
+<span class="nc" id="L43">    }</span>
+
+    // New method to allow mocking the creation of ConnectionThread
+    protected ConnectionThread createConnectionThread(Socket clientSocket) {
+<span class="nc" id="L47">        return new ConnectionThread(clientSocket);</span>
+    }
+
+    public void stop() {
+        try {
+<span class="nc bnc" id="L52" title="All 4 branches missed.">            if (serverSocket != null &amp;&amp; !serverSocket.isClosed()) {</span>
+<span class="nc" id="L53">                serverSocket.close();</span>
+            }
+<span class="nc" id="L55">            this.state = false;</span>
+<span class="nc" id="L56">            System.out.println(&quot;Server stopped.&quot;);</span>
+<span class="nc" id="L57">        } catch (IOException e) {</span>
+<span class="nc" id="L58">            throw new RuntimeException(&quot;Failed to stop the server&quot;, e);</span>
+<span class="nc" id="L59">        }</span>
+<span class="nc" id="L60">    }</span>
+
+    public static void main(String[] args) {
+<span class="nc bnc" id="L63" title="All 2 branches missed.">        TCPServer server = (args.length == 0) ? new TCPServer() : new TCPServer(Integer.parseInt(args[0]));</span>
+<span class="nc" id="L64">        server.launch();</span>
+
+        // Add a shutdown hook to stop the server on application exit
+<span class="nc" id="L67">        Runtime.getRuntime().addShutdownHook(new Thread(server::stop));</span>
+
+<span class="nc bnc" id="L69" title="All 2 branches missed.">        while (server.state) {</span>
+<span class="nc" id="L70">            server.handleConnection();</span>
+        }
+<span class="nc" id="L72">    }</span>
+
+    public ServerSocket getServerSocket() {
+<span class="nc" id="L75">        return this.serverSocket;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TCPMultiServer.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Archetype - Java-For-Network-Practice-Work</a> &gt; <a href="index.source.html" class="el_package">fr.ensea.rts.kardellas.suprano.server</a> &gt; <span class="el_source">TCPMultiServer.java</span></div><h1>TCPMultiServer.java</h1><pre class="source lang-java linenums">package fr.ensea.rts.kardellas.suprano.server;
+
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.ServerSocket;
+import java.net.Socket;
+
+public class TCPMultiServer extends Server {
+    private ServerSocket serverSocket;
+    private ConnectionThreadFactory connectionThreadFactory;
+
+    // Default constructor
+    public TCPMultiServer() {
+<span class="fc" id="L14">        super();</span>
+<span class="fc" id="L15">        this.connectionThreadFactory = new ConnectionThreadFactory(); // Default factory</span>
+<span class="fc" id="L16">    }</span>
+
+    // Constructor with port
+    public TCPMultiServer(int port) {
+<span class="fc" id="L20">        super(port);</span>
+<span class="fc" id="L21">        this.connectionThreadFactory = new ConnectionThreadFactory(); // Default factory</span>
+<span class="fc" id="L22">    }</span>
+
+    // Allow injection of a custom factory
+    public TCPMultiServer(int port, ConnectionThreadFactory connectionThreadFactory) {
+<span class="nc" id="L26">        super(port);</span>
+<span class="nc" id="L27">        this.connectionThreadFactory = connectionThreadFactory;</span>
+<span class="nc" id="L28">    }</span>
+
+    @Override
+    public void launch() {
+        try {
+<span class="fc" id="L33">            serverSocket = new ServerSocket(this.port);</span>
+<span class="fc" id="L34">            System.out.println(&quot;Server launched on IP &quot; + InetAddress.getLocalHost().getHostAddress() + &quot; and on port &quot; + this.port);</span>
+<span class="fc" id="L35">            this.state = true;</span>
+<span class="nc" id="L36">        } catch (IOException e) {</span>
+<span class="nc" id="L37">            throw new RuntimeException(&quot;Failed to launch server&quot;, e);</span>
+<span class="fc" id="L38">        }</span>
+<span class="fc" id="L39">    }</span>
+
+    @Override
+    public void handleConnection() {
+<span class="nc" id="L43">        System.out.println(&quot;Server is ready to accept multiple connections...&quot;);</span>
+        while (true) {
+            try {
+<span class="nc" id="L46">                Socket clientSocket = serverSocket.accept();</span>
+<span class="nc" id="L47">                System.out.println(&quot;Connection accepted from &quot; + clientSocket.getInetAddress().getHostAddress() + &quot;:&quot; + clientSocket.getPort());</span>
+
+                // Use the injected factory to create a new thread for each client connection
+<span class="nc" id="L50">                ConnectionThread connectionThread = connectionThreadFactory.createConnectionThread(clientSocket);</span>
+<span class="nc" id="L51">                connectionThread.start();</span>
+
+<span class="nc" id="L53">            } catch (IOException e) {</span>
+<span class="nc" id="L54">                System.err.println(&quot;Error accepting client connection: &quot; + e.getMessage());</span>
+<span class="nc" id="L55">            }</span>
+        }
+    }
+
+    public static void main(String[] args) {
+<span class="nc bnc" id="L60" title="All 2 branches missed.">        TCPMultiServer server = (args.length == 0) ? new TCPMultiServer() : new TCPMultiServer(Integer.parseInt(args[0]));</span>
+<span class="nc" id="L61">        server.launch();</span>
+<span class="nc" id="L62">        server.handleConnection();</span>
+<span class="nc" id="L63">    }</span>
+
+    // Factory class to generate ConnectionThread instances
+<span class="fc" id="L66">    public static class ConnectionThreadFactory {</span>
+        public ConnectionThread createConnectionThread(Socket clientSocket) {
+<span class="nc" id="L68">            return new ConnectionThread(clientSocket);</span>
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

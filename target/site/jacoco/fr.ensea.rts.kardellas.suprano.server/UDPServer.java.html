@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>UDPServer.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Archetype - Java-For-Network-Practice-Work</a> &gt; <a href="index.source.html" class="el_package">fr.ensea.rts.kardellas.suprano.server</a> &gt; <span class="el_source">UDPServer.java</span></div><h1>UDPServer.java</h1><pre class="source lang-java linenums">package fr.ensea.rts.kardellas.suprano.server;
+
+import java.io.IOException;
+import java.net.*;
+
+public class UDPServer extends Server {
+    private DatagramSocket socket;
+
+    public UDPServer() {
+<span class="nc" id="L10">        super();</span>
+<span class="nc" id="L11">    }</span>
+
+    public UDPServer(int port) {
+<span class="fc" id="L14">        super(port);</span>
+<span class="fc" id="L15">    }</span>
+
+    @Override
+    public void launch() {
+        try {
+<span class="fc" id="L20">            socket = new DatagramSocket(this.port, InetAddress.getByName(&quot;0.0.0.0&quot;));</span>
+<span class="fc" id="L21">            System.out.println(&quot;fr.ensea.rts.kardellas.suprano.server.Server launched on IP &quot; + InetAddress.getLocalHost().getHostAddress() + &quot; and on port &quot; + this.port);</span>
+<span class="fc" id="L22">            this.state = true;</span>
+<span class="nc" id="L23">        } catch (SocketException | UnknownHostException e) {</span>
+<span class="nc" id="L24">            throw new RuntimeException(&quot;Failed to launch server&quot;, e);</span>
+<span class="fc" id="L25">        }</span>
+<span class="fc" id="L26">    }</span>
+
+    @Override
+    public void handleConnection() {
+        try {
+<span class="fc" id="L31">            byte[] buffer = new byte[BUFFER_SIZE];</span>
+<span class="fc" id="L32">            DatagramPacket packet = new DatagramPacket(buffer, buffer.length);</span>
+<span class="fc" id="L33">            socket.receive(packet);</span>
+
+<span class="fc" id="L35">            InetAddress clientAddress = packet.getAddress();</span>
+<span class="fc" id="L36">            int clientPort = packet.getPort();</span>
+<span class="fc" id="L37">            String data = new String(packet.getData(), 0, packet.getLength());</span>
+
+<span class="fc" id="L39">            System.out.println(clientAddress.getHostAddress() + &quot;:&quot; + clientPort + &quot; &gt; &quot; + socket.getLocalAddress().getHostAddress() + &quot;:&quot; + this.port + &quot; / Data: &quot; + data);</span>
+
+<span class="fc" id="L41">            DatagramPacket responsePacket = new DatagramPacket(packet.getData(), packet.getLength(), clientAddress, clientPort);</span>
+<span class="fc" id="L42">            socket.send(responsePacket);</span>
+<span class="nc" id="L43">        } catch (IOException e) {</span>
+<span class="nc bnc" id="L44" title="All 2 branches missed.">            if (!socket.isClosed()) {</span>
+<span class="nc" id="L45">                throw new RuntimeException(&quot;Error handling client connection&quot;, e);</span>
+            }
+<span class="fc" id="L47">        }</span>
+<span class="fc" id="L48">    }</span>
+
+    public void stop() {
+<span class="pc bpc" id="L51" title="2 of 4 branches missed.">        if (socket != null &amp;&amp; !socket.isClosed()) {</span>
+<span class="fc" id="L52">            socket.close();</span>
+        }
+<span class="fc" id="L54">        this.state = false;</span>
+<span class="fc" id="L55">        System.out.println(&quot;Server stopped.&quot;);</span>
+<span class="fc" id="L56">    }</span>
+
+    public static void main(String[] args) {
+<span class="nc bnc" id="L59" title="All 2 branches missed.">        UDPServer server = (args.length == 0) ? new UDPServer() : new UDPServer(Integer.parseInt(args[0]));</span>
+<span class="nc" id="L60">        server.launch();</span>
+<span class="nc" id="L61">        Runtime.getRuntime().addShutdownHook(new Thread(server::stop)); // Stops server on application exit</span>
+<span class="nc bnc" id="L62" title="All 2 branches missed.">        while (server.state) {</span>
+<span class="nc" id="L63">            server.handleConnection();</span>
+        }
+<span class="nc" id="L65">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

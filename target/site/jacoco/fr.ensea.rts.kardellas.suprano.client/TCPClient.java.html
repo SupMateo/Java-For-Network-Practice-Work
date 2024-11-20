@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TCPClient.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Archetype - Java-For-Network-Practice-Work</a> &gt; <a href="index.source.html" class="el_package">fr.ensea.rts.kardellas.suprano.client</a> &gt; <span class="el_source">TCPClient.java</span></div><h1>TCPClient.java</h1><pre class="source lang-java linenums">package fr.ensea.rts.kardellas.suprano.client;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.Socket;
+
+public class TCPClient extends Client {
+    protected String serverAddress;
+    protected int serverPort;
+
+    public TCPClient(String address, int port) {
+<span class="fc" id="L14">        super(address, port);</span>
+<span class="fc" id="L15">        this.serverAddress = address;</span>
+<span class="fc" id="L16">        this.serverPort = port;</span>
+<span class="fc" id="L17">    }</span>
+
+    public static void main(String[] args) {
+<span class="nc bnc" id="L20" title="All 2 branches missed.">        if (args.length != 2) {</span>
+<span class="nc" id="L21">            System.out.println(&quot;Usage: java TCPClient &lt;address&gt; &lt;port&gt;&quot;);</span>
+<span class="nc" id="L22">            return;</span>
+        }
+
+<span class="nc" id="L25">        String address = args[0];</span>
+        int port;
+        try {
+<span class="nc" id="L28">            port = Integer.parseInt(args[1]);</span>
+<span class="nc" id="L29">            TCPClient client = new TCPClient(address, port);</span>
+<span class="nc" id="L30">            client.start();</span>
+<span class="nc" id="L31">        } catch (NumberFormatException e) {</span>
+<span class="nc" id="L32">            System.out.println(&quot;Invalid port number: &quot; + args[1]);</span>
+<span class="nc" id="L33">        }</span>
+<span class="nc" id="L34">    }</span>
+
+    @Override
+    public void start() {
+        try {
+<span class="fc" id="L39">            Socket socket = createSocket();</span>
+<span class="fc" id="L40">            PrintWriter out = createPrintWriter(socket);</span>
+<span class="fc" id="L41">            BufferedReader in = createBufferedReader(socket.getInputStream());</span>
+<span class="fc" id="L42">            BufferedReader stdIn = createStdinReader();</span>
+
+            String userInput;
+<span class="fc" id="L45">            System.out.println(&quot;Enter text to send to the server (CTRL+C to exit):&quot;);</span>
+
+<span class="fc bfc" id="L47" title="All 2 branches covered.">            while ((userInput = stdIn.readLine()) != null) {</span>
+                // Send the user input to the server
+<span class="fc" id="L49">                out.println(userInput);</span>
+
+                // Read the response from the server
+<span class="fc" id="L52">                String response = in.readLine();</span>
+<span class="pc bpc" id="L53" title="1 of 2 branches missed.">                if (response != null) {</span>
+                    // Print the response in hexadecimal format
+<span class="fc" id="L55">                    System.out.println(&quot;Server response (hex): &quot; + toHex(response));</span>
+                } else {
+<span class="nc" id="L57">                    System.out.println(&quot;Server closed the connection.&quot;);</span>
+<span class="nc" id="L58">                    break;</span>
+                }
+<span class="fc" id="L60">            }</span>
+
+            // Close resources
+<span class="fc" id="L63">            closeResources(socket, out, in, stdIn);</span>
+<span class="fc" id="L64">        } catch (IOException e) {</span>
+<span class="fc" id="L65">            System.err.println(&quot;IOException: &quot; + e.getMessage());</span>
+<span class="fc" id="L66">        }</span>
+<span class="fc" id="L67">    }</span>
+
+    // Extracted methods to improve testability
+    protected Socket createSocket() throws IOException {
+<span class="nc" id="L71">        return new Socket(serverAddress, serverPort);</span>
+    }
+
+    protected PrintWriter createPrintWriter(Socket socket) throws IOException {
+<span class="nc" id="L75">        return new PrintWriter(socket.getOutputStream(), true);</span>
+    }
+
+    protected BufferedReader createBufferedReader(java.io.InputStream inputStream) {
+<span class="nc" id="L79">        return new BufferedReader(new InputStreamReader(inputStream));</span>
+    }
+
+    protected BufferedReader createStdinReader() {
+<span class="nc" id="L83">        return new BufferedReader(new InputStreamReader(System.in));</span>
+    }
+
+    protected void closeResources(Socket socket, PrintWriter out, BufferedReader in, BufferedReader stdIn) throws IOException {
+<span class="pc bpc" id="L87" title="1 of 2 branches missed.">        if (socket != null) socket.close();</span>
+<span class="pc bpc" id="L88" title="1 of 2 branches missed.">        if (out != null) out.close();</span>
+<span class="pc bpc" id="L89" title="1 of 2 branches missed.">        if (in != null) in.close();</span>
+<span class="pc bpc" id="L90" title="1 of 2 branches missed.">        if (stdIn != null) stdIn.close();</span>
+<span class="fc" id="L91">    }</span>
+
+    // Public method for hex conversion
+    public String toHex(String input) {
+<span class="pc bpc" id="L95" title="1 of 4 branches missed.">        if (input == null || input.isEmpty()) {</span>
+<span class="fc" id="L96">            return &quot;&quot;;</span>
+        }
+
+<span class="fc" id="L99">        StringBuilder hexString = new StringBuilder();</span>
+<span class="fc bfc" id="L100" title="All 2 branches covered.">        for (char c : input.toCharArray()) {</span>
+<span class="fc" id="L101">            hexString.append(String.format(&quot;%02x &quot;, (int) c));</span>
+        }
+<span class="fc" id="L103">        return hexString.toString().trim();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

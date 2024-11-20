@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ConnectionThread.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Archetype - Java-For-Network-Practice-Work</a> &gt; <a href="index.source.html" class="el_package">fr.ensea.rts.kardellas.suprano.server</a> &gt; <span class="el_source">ConnectionThread.java</span></div><h1>ConnectionThread.java</h1><pre class="source lang-java linenums">package fr.ensea.rts.kardellas.suprano.server;
+import java.io.*;
+import java.net.*;
+
+public class ConnectionThread extends Thread {
+    private Socket clientSocket;
+
+<span class="fc" id="L8">    public ConnectionThread(Socket clientSocket) {</span>
+<span class="fc" id="L9">        this.clientSocket = clientSocket;</span>
+<span class="fc" id="L10">    }</span>
+
+    @Override
+    public void run() {
+        try (
+<span class="fc" id="L15">                InputStream inputStream = clientSocket.getInputStream();</span>
+<span class="fc" id="L16">                BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));</span>
+<span class="fc" id="L17">                OutputStream outputStream = clientSocket.getOutputStream();</span>
+<span class="fc" id="L18">                PrintWriter writer = new PrintWriter(outputStream, true);</span>
+        ) {
+            String data;
+            while (true) {
+<span class="fc" id="L22">                StringBuilder receivedData = new StringBuilder();</span>
+<span class="fc" id="L23">                char[] buffer = new char[Server.BUFFER_SIZE];</span>
+                int charsRead;
+
+<span class="nc bnc" id="L26" title="All 2 branches missed.">                while ((charsRead = reader.read(buffer)) != -1) {</span>
+<span class="nc" id="L27">                    receivedData.append(buffer, 0, charsRead);</span>
+
+<span class="nc bnc" id="L29" title="All 2 branches missed.">                    if (charsRead &lt; buffer.length) {</span>
+<span class="nc" id="L30">                        break;</span>
+                    }
+                }
+
+<span class="nc bnc" id="L34" title="All 4 branches missed.">                if (receivedData.toString().isEmpty() || receivedData.toString().equals(&quot;null&quot;)) {</span>
+<span class="nc" id="L35">                    System.out.println(&quot;Client closed the connection.&quot;);</span>
+<span class="nc" id="L36">                    clientSocket.close();</span>
+<span class="nc" id="L37">                    break;</span>
+                }
+
+<span class="nc" id="L40">                data = receivedData.toString();</span>
+<span class="nc" id="L41">                System.out.println(&quot;Received from &quot; + clientSocket.getInetAddress().getHostAddress() + &quot;:&quot;+clientSocket.getPort()+&quot; : &quot; + data);</span>
+
+<span class="nc" id="L43">                writer.println(&quot;Echo: &quot; + data);</span>
+<span class="nc" id="L44">            }</span>
+<span class="fc" id="L45">        } catch (IOException e) {</span>
+<span class="fc" id="L46">            System.err.println(&quot;Error handling client connection: &quot; + e.getMessage());</span>
+        } finally {
+            try {
+<span class="fc" id="L49">                clientSocket.close();</span>
+<span class="nc" id="L50">            } catch (IOException e) {</span>
+<span class="nc" id="L51">                System.err.println(&quot;Error closing client socket: &quot; + e.getMessage());</span>
+<span class="fc" id="L52">            }</span>
+        }
+<span class="fc" id="L54">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>
