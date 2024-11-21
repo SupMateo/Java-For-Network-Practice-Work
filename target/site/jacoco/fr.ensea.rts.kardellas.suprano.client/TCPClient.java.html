@@ -17,21 +17,21 @@ public class TCPClient extends Client {
 <span class="fc" id="L17">    }</span>
 
     public static void main(String[] args) {
-<span class="nc bnc" id="L20" title="All 2 branches missed.">        if (args.length != 2) {</span>
-<span class="nc" id="L21">            System.out.println(&quot;Usage: java TCPClient &lt;address&gt; &lt;port&gt;&quot;);</span>
-<span class="nc" id="L22">            return;</span>
+<span class="fc bfc" id="L20" title="All 2 branches covered.">        if (args.length != 2) {</span>
+<span class="fc" id="L21">            System.out.println(&quot;Usage: java TCPClient &lt;address&gt; &lt;port&gt;&quot;);</span>
+<span class="fc" id="L22">            return;</span>
         }
 
-<span class="nc" id="L25">        String address = args[0];</span>
+<span class="fc" id="L25">        String address = args[0];</span>
         int port;
         try {
 <span class="nc" id="L28">            port = Integer.parseInt(args[1]);</span>
 <span class="nc" id="L29">            TCPClient client = new TCPClient(address, port);</span>
 <span class="nc" id="L30">            client.start();</span>
-<span class="nc" id="L31">        } catch (NumberFormatException e) {</span>
-<span class="nc" id="L32">            System.out.println(&quot;Invalid port number: &quot; + args[1]);</span>
+<span class="fc" id="L31">        } catch (NumberFormatException e) {</span>
+<span class="fc" id="L32">            System.out.println(&quot;Invalid port number: &quot; + args[1]);</span>
 <span class="nc" id="L33">        }</span>
-<span class="nc" id="L34">    }</span>
+<span class="fc" id="L34">    }</span>
 
     @Override
     public void start() {
@@ -50,12 +50,12 @@ public class TCPClient extends Client {
 
                 // Read the response from the server
 <span class="fc" id="L52">                String response = in.readLine();</span>
-<span class="pc bpc" id="L53" title="1 of 2 branches missed.">                if (response != null) {</span>
+<span class="fc bfc" id="L53" title="All 2 branches covered.">                if (response != null) {</span>
                     // Print the response in hexadecimal format
 <span class="fc" id="L55">                    System.out.println(&quot;Server response (hex): &quot; + toHex(response));</span>
                 } else {
-<span class="nc" id="L57">                    System.out.println(&quot;Server closed the connection.&quot;);</span>
-<span class="nc" id="L58">                    break;</span>
+<span class="fc" id="L57">                    System.out.println(&quot;Server closed the connection.&quot;);</span>
+<span class="fc" id="L58">                    break;</span>
                 }
 <span class="fc" id="L60">            }</span>
 
@@ -84,15 +84,15 @@ public class TCPClient extends Client {
     }
 
     protected void closeResources(Socket socket, PrintWriter out, BufferedReader in, BufferedReader stdIn) throws IOException {
-<span class="pc bpc" id="L87" title="1 of 2 branches missed.">        if (socket != null) socket.close();</span>
-<span class="pc bpc" id="L88" title="1 of 2 branches missed.">        if (out != null) out.close();</span>
-<span class="pc bpc" id="L89" title="1 of 2 branches missed.">        if (in != null) in.close();</span>
-<span class="pc bpc" id="L90" title="1 of 2 branches missed.">        if (stdIn != null) stdIn.close();</span>
+<span class="fc bfc" id="L87" title="All 2 branches covered.">        if (socket != null) socket.close();</span>
+<span class="fc bfc" id="L88" title="All 2 branches covered.">        if (out != null) out.close();</span>
+<span class="fc bfc" id="L89" title="All 2 branches covered.">        if (in != null) in.close();</span>
+<span class="fc bfc" id="L90" title="All 2 branches covered.">        if (stdIn != null) stdIn.close();</span>
 <span class="fc" id="L91">    }</span>
 
     // Public method for hex conversion
     public String toHex(String input) {
-<span class="pc bpc" id="L95" title="1 of 4 branches missed.">        if (input == null || input.isEmpty()) {</span>
+<span class="fc bfc" id="L95" title="All 4 branches covered.">        if (input == null || input.isEmpty()) {</span>
 <span class="fc" id="L96">            return &quot;&quot;;</span>
         }
 

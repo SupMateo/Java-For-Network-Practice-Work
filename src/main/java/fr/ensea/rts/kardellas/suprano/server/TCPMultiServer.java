@@ -8,6 +8,7 @@ import java.net.Socket;
 public class TCPMultiServer extends Server {
     private ServerSocket serverSocket;
     private ConnectionThreadFactory connectionThreadFactory;
+    private volatile boolean running; // Flag to control the server's state
 
     // Default constructor
     public TCPMultiServer() {
@@ -33,6 +34,7 @@ public class TCPMultiServer extends Server {
             serverSocket = new ServerSocket(this.port);
             System.out.println("Server launched on IP " + InetAddress.getLocalHost().getHostAddress() + " and on port " + this.port);
             this.state = true;
+            this.running = true;
         } catch (IOException e) {
             throw new RuntimeException("Failed to launch server", e);
         }
@@ -41,7 +43,7 @@ public class TCPMultiServer extends Server {
     @Override
     public void handleConnection() {
         System.out.println("Server is ready to accept multiple connections...");
-        while (true) {
+        while (running) { // Check the running flag to continue the loop
             try {
                 Socket clientSocket = serverSocket.accept();
                 System.out.println("Connection accepted from " + clientSocket.getInetAddress().getHostAddress() + ":" + clientSocket.getPort());
@@ -51,15 +53,40 @@ public class TCPMultiServer extends Server {
                 connectionThread.start();
 
             } catch (IOException e) {
-                System.err.println("Error accepting client connection: " + e.getMessage());
+                if (running) { // Log errors only if the server was running
+                    System.err.println("Error accepting client connection: " + e.getMessage());
+                }
             }
+        }
+        System.out.println("Server stopped accepting connections.");
+    }
+
+    public void stop() {
+        this.running = false; // Stop the loop
+        try {
+            if (serverSocket != null && !serverSocket.isClosed()) {
+                serverSocket.close(); // Close the ServerSocket
+                System.out.println("Server socket closed.");
+            }
+        } catch (IOException e) {
+            System.err.println("Error closing the server socket: " + e.getMessage());
         }
     }
 
     public static void main(String[] args) {
         TCPMultiServer server = (args.length == 0) ? new TCPMultiServer() : new TCPMultiServer(Integer.parseInt(args[0]));
         server.launch();
-        server.handleConnection();
+
+
+        Thread serverThread = new Thread(server::handleConnection);
+        serverThread.start();
+
+        try {
+            Thread.sleep(30000); // Wait for 30 seconds
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        server.stop();
     }
 
     // Factory class to generate ConnectionThread instances
@@ -67,5 +94,13 @@ public class TCPMultiServer extends Server {
         public ConnectionThread createConnectionThread(Socket clientSocket) {
             return new ConnectionThread(clientSocket);
         }
+    }
+
+    public ServerSocket getServerSocket() {
+        return this.serverSocket;
+    }
+
+    public void setServerSocket(ServerSocket serverSocket) {
+        this.serverSocket = serverSocket;
     }
 }

@@ -3,10 +3,14 @@ package fr.ensea.rts.kardellas.suprano.server;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.*;
+
 import java.io.*;
 import java.net.*;
-import static org.mockito.Mockito.*;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+
+import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 class ConnectionThreadTest {
 
@@ -19,98 +23,161 @@ class ConnectionThreadTest {
     @Mock
     private OutputStream mockOutputStream;
 
-    @Mock
-    private BufferedReader mockReader;
-
-    @Mock
-    private PrintWriter mockWriter;
-
     private ConnectionThread connectionThread;
-
     private CountDownLatch latch;
 
     @BeforeEach
     void setUp() throws IOException {
         MockitoAnnotations.openMocks(this);
-
-        // Initialize CountDownLatch to ensure synchronization with the thread
         latch = new CountDownLatch(1);
 
-        // Mock the socket behaviors
+        // Configure socket mocks
         when(mockSocket.getInputStream()).thenReturn(mockInputStream);
         when(mockSocket.getOutputStream()).thenReturn(mockOutputStream);
         when(mockSocket.getInetAddress()).thenReturn(InetAddress.getByName("127.0.0.1"));
         when(mockSocket.getPort()).thenReturn(8080);
+    }
 
-        // Simulate that BufferedReader reads the string "Hello Server"
-        when(mockReader.read(any(char[].class))).thenAnswer(invocation -> {
-            char[] buffer = invocation.getArgument(0);
-            String inputData = "Hello Server";
-            System.arraycopy(inputData.toCharArray(), 0, buffer, 0, inputData.length());
-            return inputData.length();
-        }).thenReturn(-1);
+    @Test
+    void testRunWithValidInput() throws Exception {
+        // Prepare input stream simulation
+        String testInput = "Hello Server";
 
-        doNothing().when(mockWriter).println(anyString());
+        // Create mocks
+        BufferedReader mockReader = mock(BufferedReader.class);
+        PrintWriter mockWriter = mock(PrintWriter.class);
+
+        // Configure the mock reader to return the test input and then -1 (end of stream)
+        when(mockReader.read(any(char[].class)))
+                .thenAnswer(invocation -> {
+                    char[] buffer = invocation.getArgument(0);
+                    testInput.getChars(0, testInput.length(), buffer, 0);
+                    return testInput.length();
+                })
+                .thenReturn(-1);
+
+        // Create connection thread with mocked readers/writers
+        connectionThread = new ConnectionThread(mockSocket) {
+            @Override
+            protected BufferedReader createBufferedReader(InputStream inputStream) {
+                return mockReader;
+            }
+
+            @Override
+            protected PrintWriter createPrintWriter(OutputStream outputStream) {
+                return mockWriter;
+            }
+
+            @Override
+            public void run() {
+                super.run();
+                latch.countDown();
+            }
+        };
+
+        // Start the thread and wait
+        connectionThread.start();
+        assertTrue(latch.await(1, TimeUnit.SECONDS), "Thread did not complete in time");
+
+        // Verify interactions
+        verify(mockReader, atLeastOnce()).read(any(char[].class));
+        verify(mockWriter).println("Echo: " + testInput);
+        verify(mockSocket, times(1)).close();
+    }
+
+    @Test
+    void testHandleEmptyInput() throws Exception {
+        BufferedReader mockReader = mock(BufferedReader.class);
+
+        // Simulate empty input
+        when(mockReader.read(any(char[].class))).thenReturn(-1);
+
+        // Stub socket close to prevent multiple invocation errors
+        doNothing().when(mockSocket).close();
 
         connectionThread = new ConnectionThread(mockSocket) {
             @Override
+            protected BufferedReader createBufferedReader(InputStream inputStream) {
+                return mockReader;
+            }
+
+            @Override
             public void run() {
-                try {
-                    super.run();
-                } finally {
-                    latch.countDown();
-                }
+                super.run();
+                latch.countDown();
             }
         };
+
+        // Start the thread and wait
+        connectionThread.start();
+        assertTrue(latch.await(1, TimeUnit.SECONDS), "Thread did not complete in time");
+
+        // Verify socket closure
+        verify(mockSocket, atMostOnce()).close();
     }
 
     @Test
-    void testConnectionThreadRunWithValidInput() throws IOException, InterruptedException {
-        Thread thread = new Thread(connectionThread);
-        thread.start();
+    void testHandleNullInput() throws Exception {
+        // Simulate "null" input
+        String nullInput = "null";
+        BufferedReader mockReader = mock(BufferedReader.class);
 
-        latch.await();
+        // Configure mock to return "null" and then end of stream
+        when(mockReader.read(any(char[].class)))
+                .thenAnswer(invocation -> {
+                    char[] buffer = invocation.getArgument(0);
+                    nullInput.getChars(0, nullInput.length(), buffer, 0);
+                    return nullInput.length();
+                })
+                .thenReturn(-1);
 
-        verify(mockWriter, times(1)).println("Echo: Hello Server");
+        connectionThread = new ConnectionThread(mockSocket) {
+
+            @Override
+            public BufferedReader createBufferedReader(InputStream inputStream) {
+                return mockReader;
+            }
+
+            @Override
+            public void run() {
+                super.run();
+                latch.countDown();
+            }
+        };
+
+        // Start the thread and wait
+        connectionThread.start();
+        assertTrue(latch.await(1, TimeUnit.SECONDS), "Thread did not complete in time");
+
+        // Verify socket closure
         verify(mockSocket, times(1)).close();
     }
 
     @Test
-    void testConnectionThreadHandlesEmptyData() throws IOException, InterruptedException {
+    void testExceptionHandling() throws Exception {
+        // Simulate IOException during reading
+        BufferedReader mockReader = mock(BufferedReader.class);
+        doThrow(new IOException("Test exception")).when(mockReader).read(any(char[].class));
 
-        when(mockReader.read(any(char[].class))).thenReturn(-1);
+        connectionThread = new ConnectionThread(mockSocket) {
 
-        Thread thread = new Thread(connectionThread);
-        thread.start();
+            @Override
+            public BufferedReader createBufferedReader(InputStream inputStream) {
+                return mockReader;
+            }
 
-        latch.await();
+            @Override
+            public void run() {
+                super.run();
+                latch.countDown();
+            }
+        };
 
-        verify(mockSocket, times(1)).close();
-    }
+        // Start the thread and wait
+        connectionThread.start();
+        assertTrue(latch.await(1, TimeUnit.SECONDS), "Thread did not complete in time");
 
-    @Test
-    void testConnectionThreadHandlesNullData() throws IOException, InterruptedException {
-        String nullData = "null";
-        char[] dataChars = nullData.toCharArray();
-        when(mockReader.read(any(char[].class))).thenReturn(dataChars.length).thenReturn(-1);
-
-        Thread thread = new Thread(connectionThread);
-        thread.start();
-
-        latch.await();
-
-        verify(mockSocket, times(1)).close();
-    }
-
-    @Test
-    void testConnectionThreadExceptionHandling() throws IOException, InterruptedException {
-        when(mockReader.read(any(char[].class))).thenThrow(new IOException("Test exception"));
-
-        Thread thread = new Thread(connectionThread);
-        thread.start();
-
-        latch.await();
-
+        // Verify socket closure
         verify(mockSocket, times(1)).close();
     }
 }

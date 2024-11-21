@@ -9,48 +9,57 @@ public class ConnectionThread extends Thread {
 <span class="fc" id="L9">        this.clientSocket = clientSocket;</span>
 <span class="fc" id="L10">    }</span>
 
+    public Socket getClientSocket() {
+<span class="fc" id="L13">        return clientSocket;</span>
+    }
+
+    protected BufferedReader createBufferedReader(InputStream inputStream) {
+<span class="nc" id="L17">        return new BufferedReader(new InputStreamReader(inputStream));</span>
+    }
+
+    protected PrintWriter createPrintWriter(OutputStream outputStream) {
+<span class="fc" id="L21">        return new PrintWriter(outputStream, true);</span>
+    }
+
     @Override
     public void run() {
         try (
-<span class="fc" id="L15">                InputStream inputStream = clientSocket.getInputStream();</span>
-<span class="fc" id="L16">                BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));</span>
-<span class="fc" id="L17">                OutputStream outputStream = clientSocket.getOutputStream();</span>
-<span class="fc" id="L18">                PrintWriter writer = new PrintWriter(outputStream, true);</span>
+<span class="fc" id="L27">                InputStream inputStream = clientSocket.getInputStream();</span>
+<span class="fc" id="L28">                BufferedReader reader = createBufferedReader(inputStream);</span>
+<span class="fc" id="L29">                OutputStream outputStream = clientSocket.getOutputStream();</span>
+<span class="fc" id="L30">                PrintWriter writer = createPrintWriter(outputStream);</span>
         ) {
-            String data;
-            while (true) {
-<span class="fc" id="L22">                StringBuilder receivedData = new StringBuilder();</span>
-<span class="fc" id="L23">                char[] buffer = new char[Server.BUFFER_SIZE];</span>
-                int charsRead;
+<span class="fc" id="L32">            StringBuilder receivedData = new StringBuilder();</span>
+<span class="fc" id="L33">            char[] buffer = new char[Server.BUFFER_SIZE];</span>
+<span class="fc" id="L34">            int charsRead = reader.read(buffer);</span>
 
-<span class="nc bnc" id="L26" title="All 2 branches missed.">                while ((charsRead = reader.read(buffer)) != -1) {</span>
-<span class="nc" id="L27">                    receivedData.append(buffer, 0, charsRead);</span>
+<span class="pc bpc" id="L36" title="1 of 4 branches missed.">            if (charsRead == -1 ||</span>
+<span class="pc bpc" id="L37" title="1 of 2 branches missed.">                    (charsRead &gt; 0 &amp;&amp; (new String(buffer, 0, charsRead).trim().isEmpty() ||</span>
+<span class="fc bfc" id="L38" title="All 2 branches covered.">                            new String(buffer, 0, charsRead).trim().equals(&quot;null&quot;)))) {</span>
+<span class="fc" id="L39">                System.out.println(&quot;Client closed the connection.&quot;);</span>
+<span class="fc" id="L40">                clientSocket.close();</span>
+<span class="fc" id="L41">                return;</span>
+            }
 
-<span class="nc bnc" id="L29" title="All 2 branches missed.">                    if (charsRead &lt; buffer.length) {</span>
-<span class="nc" id="L30">                        break;</span>
-                    }
-                }
+<span class="fc" id="L44">            receivedData.append(buffer, 0, charsRead);</span>
+<span class="fc" id="L45">            String data = receivedData.toString().trim();</span>
 
-<span class="nc bnc" id="L34" title="All 4 branches missed.">                if (receivedData.toString().isEmpty() || receivedData.toString().equals(&quot;null&quot;)) {</span>
-<span class="nc" id="L35">                    System.out.println(&quot;Client closed the connection.&quot;);</span>
-<span class="nc" id="L36">                    clientSocket.close();</span>
-<span class="nc" id="L37">                    break;</span>
-                }
+<span class="fc" id="L47">            System.out.println(&quot;Received from &quot; +</span>
+<span class="fc" id="L48">                    clientSocket.getInetAddress().getHostAddress() +</span>
+<span class="fc" id="L49">                    &quot;:&quot; + clientSocket.getPort() + &quot; : &quot; + data);</span>
 
-<span class="nc" id="L40">                data = receivedData.toString();</span>
-<span class="nc" id="L41">                System.out.println(&quot;Received from &quot; + clientSocket.getInetAddress().getHostAddress() + &quot;:&quot;+clientSocket.getPort()+&quot; : &quot; + data);</span>
-
-<span class="nc" id="L43">                writer.println(&quot;Echo: &quot; + data);</span>
-<span class="nc" id="L44">            }</span>
-<span class="fc" id="L45">        } catch (IOException e) {</span>
-<span class="fc" id="L46">            System.err.println(&quot;Error handling client connection: &quot; + e.getMessage());</span>
+<span class="fc" id="L51">            writer.println(&quot;Echo: &quot; + data);</span>
+<span class="pc bpc" id="L52" title="4 of 8 branches missed.">        } catch (IOException e) {</span>
+<span class="fc" id="L53">            System.err.println(&quot;Error handling client connection: &quot; + e.getMessage());</span>
         } finally {
             try {
-<span class="fc" id="L49">                clientSocket.close();</span>
-<span class="nc" id="L50">            } catch (IOException e) {</span>
-<span class="nc" id="L51">                System.err.println(&quot;Error closing client socket: &quot; + e.getMessage());</span>
-<span class="fc" id="L52">            }</span>
+<span class="pc bpc" id="L56" title="1 of 2 branches missed.">                if (!clientSocket.isClosed()) {</span>
+<span class="fc" id="L57">                    clientSocket.close();</span>
+                }
+<span class="nc" id="L59">            } catch (IOException e) {</span>
+<span class="nc" id="L60">                System.err.println(&quot;Error closing client socket: &quot; + e.getMessage());</span>
+<span class="fc" id="L61">            }</span>
         }
-<span class="fc" id="L54">    }</span>
+<span class="fc" id="L63">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

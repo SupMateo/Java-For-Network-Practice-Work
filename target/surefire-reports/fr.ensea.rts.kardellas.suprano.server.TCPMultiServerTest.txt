@@ -1,4 +1,35 @@
 -------------------------------------------------------------------------------
 Test set: fr.ensea.rts.kardellas.suprano.server.TCPMultiServerTest
 -------------------------------------------------------------------------------
-Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.181 s -- in fr.ensea.rts.kardellas.suprano.server.TCPMultiServerTest
+Tests run: 5, Failures: 2, Errors: 0, Skipped: 0, Time elapsed: 60.17 s <<< FAILURE! -- in fr.ensea.rts.kardellas.suprano.server.TCPMultiServerTest
+fr.ensea.rts.kardellas.suprano.server.TCPMultiServerTest.testConcurrentConnections -- Time elapsed: 0.136 s <<< FAILURE!
+Wanted but not invoked:
+mockServerSocket.accept();
+-> at java.base/java.net.ServerSocket.accept(ServerSocket.java:538)
+
+However, there were exactly 2 interactions with this mock:
+mockServerSocket.isClosed();
+-> at fr.ensea.rts.kardellas.suprano.server.TCPMultiServer.stop(TCPMultiServer.java:67)
+
+mockServerSocket.close();
+-> at fr.ensea.rts.kardellas.suprano.server.TCPMultiServer.stop(TCPMultiServer.java:68)
+
+
+	at java.base/java.net.ServerSocket.accept(ServerSocket.java:538)
+	at fr.ensea.rts.kardellas.suprano.server.TCPMultiServerTest.testConcurrentConnections(TCPMultiServerTest.java:85)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+
+fr.ensea.rts.kardellas.suprano.server.TCPMultiServerTest.testCustomConnectionThreadFactory -- Time elapsed: 0.004 s <<< FAILURE!
+Wanted but not invoked:
+mockServerSocket.accept();
+-> at java.base/java.net.ServerSocket.accept(ServerSocket.java:538)
+Actually, there were zero interactions with this mock.
+
+	at java.base/java.net.ServerSocket.accept(ServerSocket.java:538)
+	at fr.ensea.rts.kardellas.suprano.server.TCPMultiServerTest.testCustomConnectionThreadFactory(TCPMultiServerTest.java:60)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+

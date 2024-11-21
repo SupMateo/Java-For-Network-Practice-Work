@@ -35,7 +35,7 @@ class UDPServerTest {
         InetAddress serverAddress = InetAddress.getByName("localhost");
         DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, serverAddress, TEST_PORT);
         clientSocket.send(sendPacket);
-        
+
         Thread serverThread = new Thread(udpServer::handleConnection);
         serverThread.start();
         serverThread.join(1000);
