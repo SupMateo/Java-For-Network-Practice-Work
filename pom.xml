@@ -45,6 +45,23 @@
         <version>3.2.5</version>
       </plugin>
 
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <version>3.1.0</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>java</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <mainClass>fr.ensea.rts.kardellas.suprano.GUI.MainClient</mainClass>
+          <classpathScope>runtime</classpathScope>
+        </configuration>
+      </plugin>
+
     </plugins>
 
   </build>
@@ -94,6 +111,12 @@
       <artifactId>junit</artifactId>
       <version>4.13.2</version>
       <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.openjfx</groupId>
+      <artifactId>javafx-controls</artifactId>
+      <version>21</version>
     </dependency>
 
   </dependencies>

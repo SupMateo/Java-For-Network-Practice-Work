@@ -1,5 +1,4 @@
 fr\ensea\rts\kardellas\suprano\client\UDPClient.class
-fr\ensea\rts\kardellas\suprano\client\TCPClient.class
 fr\ensea\rts\kardellas\suprano\server\ConnectionThread.class
 fr\ensea\rts\kardellas\suprano\server\TCPMultiServer.class
 fr\ensea\rts\kardellas\suprano\server\UDPServer.class

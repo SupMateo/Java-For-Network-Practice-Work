@@ -37,14 +37,7 @@ class TCPMultiServerTest {
             }
         };
 
-        // Create server with custom factory
-        server = new TCPMultiServer(0, customFactory) {
-            @Override
-            public void launch() {
-                this.setServerSocket(mockServerSocket);
-                this.state = true;
-            }
-        };
+
     }
 
     @Test
@@ -60,7 +53,7 @@ class TCPMultiServerTest {
         verify(mockServerSocket).accept();
         verify(mockConnectionThread).start();
 
-        server.stop();
+
     }
 
     @Test
@@ -76,10 +69,9 @@ class TCPMultiServerTest {
         // Simulate connection handling in a way that can be verified
         try {
             server.handleConnection();
-            server.handleConnection();
-        } catch (RuntimeException ignored) {
-        }
-        server.stop();
+        server.handleConnection();
+    } catch (RuntimeException ignored) {
+    }
 
         // Verify multiple connection thread creations
         verify(mockServerSocket, times(2)).accept();
@@ -112,6 +104,5 @@ class TCPMultiServerTest {
         assertDoesNotThrow(() -> server.handleConnection(),
                 "Should handle connection errors gracefully");
 
-        server.stop();
     }
 }

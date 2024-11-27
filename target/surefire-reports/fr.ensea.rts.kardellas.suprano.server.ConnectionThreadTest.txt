@@ -1,0 +1,31 @@
+-------------------------------------------------------------------------------
+Test set: fr.ensea.rts.kardellas.suprano.server.ConnectionThreadTest
+-------------------------------------------------------------------------------
+Tests run: 4, Failures: 2, Errors: 0, Skipped: 0, Time elapsed: 0.226 s <<< FAILURE! -- in fr.ensea.rts.kardellas.suprano.server.ConnectionThreadTest
+fr.ensea.rts.kardellas.suprano.server.ConnectionThreadTest.testHandleEmptyInput -- Time elapsed: 0.187 s <<< FAILURE!
+org.mockito.exceptions.verification.MoreThanAllowedActualInvocations: 
+
+Wanted at most 1 time but was 2
+	at java.base/java.net.Socket.close(Socket.java:1724)
+	at fr.ensea.rts.kardellas.suprano.server.ConnectionThreadTest.testHandleEmptyInput(ConnectionThreadTest.java:116)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+
+fr.ensea.rts.kardellas.suprano.server.ConnectionThreadTest.testHandleNullInput -- Time elapsed: 0.013 s <<< FAILURE!
+org.mockito.exceptions.verification.TooManyActualInvocations: 
+
+mockSocket.close();
+Wanted 1 time:
+-> at java.base/java.net.Socket.close(Socket.java:1724)
+But was 2 times:
+-> at fr.ensea.rts.kardellas.suprano.server.ConnectionThread.run(ConnectionThread.java:40)
+-> at fr.ensea.rts.kardellas.suprano.server.ConnectionThread.run(ConnectionThread.java:57)
+
+
+	at java.base/java.net.Socket.close(Socket.java:1724)
+	at fr.ensea.rts.kardellas.suprano.server.ConnectionThreadTest.testHandleNullInput(ConnectionThreadTest.java:153)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+

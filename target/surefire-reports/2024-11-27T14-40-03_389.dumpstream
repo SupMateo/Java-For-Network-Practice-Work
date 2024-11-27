@@ -1,0 +1,5 @@
+# Created at 2024-11-27T14:40:03.518
+Boot Manifest-JAR contains absolute paths in classpath 'D:\IcloudDrive\Documents personnels\Etudes\ENSEA\3A\Java pour les réseaux\Java-For-Network-Practice-Work 2\target\test-classes'
+Hint: <argLine>-Djdk.net.URLClassPath.disableClassPathURLCheck=true</argLine>
+'other' has different root
+
